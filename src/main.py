@@ -76,8 +76,15 @@ async def process_message(game_abbreviation, game_name, game_regex_string, messa
     if re.match(game_regex, message.content) is not None:
         # extract the Wordle number from message
         wordle = message.content.splitlines()[0].split(" ")[1]
+
         # extract the score from message (-1 index means get the last item)
-        score = message.content.splitlines()[0].split(" ")[-1][0]
+        score = "X"
+
+        if game_abbreviation == "wlb":
+            score = message.content.splitlines()[0].split(" ")[-2][0]
+        else:
+            score = message.content.splitlines()[0].split(" ")[-1][0]
+
         if score == "X":
             score = "7"
         score = int(score)
