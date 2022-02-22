@@ -30,7 +30,7 @@ async def on_message(message: discord.Message):
     elif message.content.startswith("!wlb") or message.content.startswith("#Worldle"):
         await process_message("wlb", ":earth_americas: Worldle", "#Worldle #[0-9]+ [1-6|X]/6", message)
     elif message.content.startswith("!sb") or message.content.startswith("Subwaydle"):
-        await process_message("sb", ":metro: Subwaydle", "Subwaydle [0-9]+ (\(Weekend Edition\))? [1-6|X]/6", message)
+        await process_message("sb", ":metro: Subwaydle", "Subwaydle [0-9]+ (\(Weekend Edition\)\s)?[1-6|X]/6", message)
     elif message.content.startswith("!tb") or message.content.startswith("Taylordle"):
         await process_message("tb", ":notes: Taylordle", "Taylordle [0-9]+ [1-6|X]/6", message)
     elif message.content.startswith("!nb") or message.content.startswith("nerdlegame"):
