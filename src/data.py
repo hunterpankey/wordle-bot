@@ -22,6 +22,7 @@ class Client:
         self.worldle_db = self.mongo.worldle
         self.subwaydle_db = self.mongo.subwaydle
         self.taylordle_db = self.mongo.taylordle
+        self.nerdle_db = self.mongo.nerdle
 
     def get_db_by_game_abbreviation(self, game_abbreviation):
         if game_abbreviation == "wb":
@@ -32,13 +33,15 @@ class Client:
             return self.subwaydle_db
         elif game_abbreviation == "tb":
             return self.taylordle_db
+        elif game_abbreviation == "nb":
+            return self.nerdle_db
 
-    def add_score(self, game_abbreviation: str, pid: int, wordle: str, score: int) -> bool:
+    def add_score(self, game_abbreviation: str, pid: int, game_number: str, score: int) -> bool:
         db = self.get_db_by_game_abbreviation(game_abbreviation)
 
         """Adds a score to the relevant player in the database. If a score already exists, return False."""
         player = db.players.find_one({'_id': pid})
-        if player is not None and wordle in player["scores"]:
+        if player is not None and game_number in player["scores"]:
             return False
 
         if player is None:
@@ -52,7 +55,7 @@ class Client:
                 "win_rate": 0
             }
 
-        player["scores"][wordle] = score
+        player["scores"][game_number] = score
         player["count"] += 1
         player["win_count"] = player["win_count"] if score == 7 else player["win_count"] + 1
         player["average"] = player["average"] + \

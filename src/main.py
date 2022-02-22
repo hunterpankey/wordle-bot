@@ -33,6 +33,8 @@ async def on_message(message: discord.Message):
         await process_message("sb", ":metro: Subwaydle", "Subwaydle [0-9]+ (\(Weekend Edition\))? [1-6|X]/6", message)
     elif message.content.startswith("!tb") or message.content.startswith("Taylordle"):
         await process_message("tb", ":notes: Taylordle", "Taylordle [0-9]+ [1-6|X]/6", message)
+    elif message.content.startswith("!nb") or message.content.startswith("nerdlegame"):
+        await process_message("nb", "📐 Nerdle", "nerdlegame\s[0-9]+\s[1-6|X]/6", message)
 
 
 async def process_message(game_abbreviation, game_name, game_regex_string, message):
@@ -40,16 +42,16 @@ async def process_message(game_abbreviation, game_name, game_regex_string, messa
         stats_string = get_stats_string(game_abbreviation, game_name, message)
         await message.channel.send(stats_string)
 
-    if message.content == f"!{game_abbreviation} average":
+    elif message.content == f"!{game_abbreviation} average":
         await message.channel.send(f"For **{game_name}**:\n{rankings_by_average(message, game_abbreviation, 10)}")
 
-    if message.content == f"!{game_abbreviation} rate":
+    elif message.content == f"!{game_abbreviation} rate":
         await message.channel.send(f"For **{game_name}**:\n{rankings_by_win_rate(message, game_abbreviation, 10)}")
 
-    if message.content == f"!{game_abbreviation} games":
+    elif message.content == f"!{game_abbreviation} games":
         await message.channel.send(f"For **{game_name}**:\n{rankings_by_games_played(message, game_abbreviation, 10)}")
 
-    if message.content == f"!{game_abbreviation} deletemydata":
+    elif message.content == f"!{game_abbreviation} deletemydata":
         if database.delete_player(game_abbreviation, message.author.id):
             await message.channel.send(
                 f"{message.author.nick if message.author.nick is not None else message.author.name}'s "
@@ -57,10 +59,7 @@ async def process_message(game_abbreviation, game_name, game_regex_string, messa
         else:
             await message.channel.send("I tried to delete your data, but I couldn't find any data for you!")
 
-    if message.content == f"!{game_abbreviation} helper":
-        await message.channel.send('https://www.spalmurray.com/wordle-helper')
-
-    if message.content == f"!{game_abbreviation} help" or message.content == f"!{game_abbreviation}":
+    elif message.content == f"!{game_abbreviation} help" or message.content == f"!{game_abbreviation}":
         # backticks are Discord/Markdown characters for fixed width code type display
         help_string = f"`!{game_abbreviation} help` to see this message\n" \
                       f"`!{game_abbreviation} me` to see your stats\n" \
@@ -69,53 +68,58 @@ async def process_message(game_abbreviation, game_name, game_regex_string, messa
                       f"`!{game_abbreviation} games` to see server rankings by games played\n" \
                       f"`!{game_abbreviation} deletemydata` to remove all your scores from wordle-bot (warning: this is not reversible!)\n" \
                       f"I support multiple games now! Try the above commands with `!wb` (:book: Wordle), `!wlb` (:earth_americas: Worldle), " \
-                      f"`!sb` (:metro: Subwaydle), and `!tb` (:notes: Taylordle)."
+                      f"`!sb` (:metro: Subwaydle), `!tb` (:notes: Taylordle), and `!nb` (📐 Nerdle)."
         await message.channel.send(help_string)
 
-    game_regex = re.compile(game_regex_string)
-    if re.match(game_regex, message.content) is not None:
-        # extract the Wordle number from message
-        wordle = message.content.splitlines()[0].split(" ")[1]
+    else:
+        game_regex = re.compile(game_regex_string)
+        if re.match(game_regex, message.content) is not None:
+            await process_game_score(game_abbreviation, game_name, message)
 
-        # extract the score from message (-1 index means get the last item)
-        score = "X"
 
-        if game_abbreviation == "wlb":
-            score = message.content.splitlines()[0].split(" ")[-2][0]
-        else:
-            score = message.content.splitlines()[0].split(" ")[-1][0]
+async def process_game_score(game_abbreviation, game_name, message):
+    # extract the Wordle number from message
+    game_number = message.content.splitlines()[0].split(" ")[1]
 
-        if score == "X":
-            score = "7"
-        score = int(score)
+    # extract the score from message (-1 index means get the last item)
+    score = "X"
 
-        result = database.add_score(
-            game_abbreviation, message.author.id, wordle, score)
+    if game_abbreviation == "wlb":
+        score = message.content.splitlines()[0].split(" ")[-2][0]
+    else:
+        score = message.content.splitlines()[0].split(" ")[-1][0]
 
-        if not result:
-            await message.channel.send(f"You've already submitted a score for this {game_name}.")
-        elif score == 1:
-            await message.channel.send("Uh... you should probably go buy a lottery ticket...")
-        elif score == 2:
-            await message.channel.send("Wow! That's impressive!")
-        elif score == 3:
-            await message.channel.send("Very nice!")
-        elif score == 4:
-            await message.channel.send("Not bad!")
-        elif score == 5:
-            await message.channel.send("Unlucky...")
-        elif score == 6:
-            await message.channel.send("Cutting it a little close there...")
-        else:
-            await message.channel.send("I will pretend like I didn't see that one...")
+    if score == "X":
+        score = "7"
+    score = int(score)
 
-        await message.channel.send(get_stats_string(game_abbreviation, game_name, message))
+    result = database.add_score(
+        game_abbreviation, message.author.id, game_number, score)
+
+    if not result:
+        await message.channel.send(f"You've already submitted a score for this {game_name}.")
+    elif score == 1:
+        await message.channel.send("Uh... you should probably go buy a lottery ticket...")
+    elif score == 2:
+        await message.channel.send("Wow! That's impressive!")
+    elif score == 3:
+        await message.channel.send("Very nice!")
+    elif score == 4:
+        await message.channel.send("Not bad!")
+    elif score == 5:
+        await message.channel.send("Unlucky...")
+    elif score == 6:
+        await message.channel.send("Cutting it a little close there...")
+    else:
+        await message.channel.send("I will pretend like I didn't see that one...")
+
+    await message.channel.send(get_stats_string(game_abbreviation, game_name, message))
 
 
 def get_stats_string(game_abbreviation, game_name, message):
     stats = database.get_player_stats(game_abbreviation, message.author.id)
     player = message.author.nick if message.author.nick is not None else message.author.name
-    stats_string = f"For {game_name}:\n**{player}**: **{stats[2]}** wins out of **{stats[1]}** games played " \
+    stats_string = f"{game_name}: **{player}**: **{stats[2]}** wins out of **{stats[1]}** games played " \
         f" (**{round(stats[3] * 100, 4)}%**), averaging **{round(stats[0], 4)}** guesses."
 
     return stats_string
