@@ -23,6 +23,7 @@ class Client:
         self.subwaydle_db = self.mongo.subwaydle
         self.taylordle_db = self.mongo.taylordle
         self.nerdle_db = self.mongo.nerdle
+        self.lewdle_db = self.mongo.lewdle
 
     def get_db_by_game_abbreviation(self, game_abbreviation):
         if game_abbreviation == "wb":
@@ -35,6 +36,8 @@ class Client:
             return self.taylordle_db
         elif game_abbreviation == "nb":
             return self.nerdle_db
+        elif game_abbreviation == "lb":
+            return self.lewdle_db
 
     def add_score(self, game_abbreviation: str, pid: int, game_number: str, score: int) -> bool:
         db = self.get_db_by_game_abbreviation(game_abbreviation)
@@ -86,3 +89,21 @@ class Client:
         if result.deleted_count != 0:
             return True
         return False
+
+    def get_game_stats_for_today(self, game_abbreviation: str) -> List:
+        db = self.get_db_by_game_abbreviation(game_abbreviation)
+
+        # get most recent game number
+        most_recent_game = 0
+        for player in db.players:
+            if player.scores[-1].key > most_recent_game:
+                most_recent_game = player.scores[-1].key
+
+        # compile scores
+        scores = []
+
+        for player in db.players:
+            if player.scores[most_recent_game] is not None:
+                scores.append((player._id, player.scores[most_recent_game]))
+
+        return scores

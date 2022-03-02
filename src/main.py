@@ -35,6 +35,8 @@ async def on_message(message: discord.Message):
         await process_message("tb", ":notes: Taylordle", "Taylordle [0-9]+ [1-6|X]/6", message)
     elif message.content.startswith("!nb") or message.content.startswith("nerdlegame"):
         await process_message("nb", "📐 Nerdle", "nerdlegame\s[0-9]+\s[1-6|X]/6", message)
+    elif message.content.startswith("!lb") or message.content.startswith("Daily Lewdle"):
+        await process_message("lb", ":pleading_face: Lewdle", "Daily Lewdle\s[0-9]+\s[1-6|X]/6", message)
 
 
 async def process_message(game_abbreviation, game_name, game_regex_string, message):
@@ -58,6 +60,9 @@ async def process_message(game_abbreviation, game_name, game_regex_string, messa
                 f"data has been deleted.")
         else:
             await message.channel.send("I tried to delete your data, but I couldn't find any data for you!")
+
+    elif message.content == f"!{game_abbreviation} today":
+        scores = await message.channel.send(scores_for_today(game_abbreviation))
 
     elif message.content == f"!{game_abbreviation} help" or message.content == f"!{game_abbreviation}":
         # backticks are Discord/Markdown characters for fixed width code type display
@@ -123,6 +128,22 @@ def get_stats_string(game_abbreviation, game_name, message):
         f" (**{round(stats[3] * 100, 4)}%**), averaging **{round(stats[0], 4)}** guesses."
 
     return stats_string
+
+
+def scores_for_today(game_abbreviation: str) -> str:
+    """Return string formatted leaderboard ordered by number of guesses for specified game for today only"""
+    scores = database.get_game_stats_for_today(game_abbreviation)
+
+    scores.sort(key=lambda x: x[1][0])
+
+    scoreboard = "Scores for today:"
+    i = 0
+
+    for score in scores:
+        i += 1
+        scoreboard += f"\n{i} **{score[0]}** **{score[1]}"
+
+    return scoreboard
 
 
 def rankings_by_average(message, game_abbreviation: str, n: int) -> str:
