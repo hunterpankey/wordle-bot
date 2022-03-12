@@ -37,6 +37,8 @@ async def on_message(message: discord.Message):
         await process_message("nb", "📐 Nerdle", "nerdlegame\s[0-9]+\s[1-6|X]/6", message)
     elif message.content.startswith("!lb") or message.content.startswith("Daily Lewdle"):
         await process_message("lb", ":pleading_face: Lewdle", "Daily Lewdle\s[0-9]+\s[1-6|X]/6", message)
+    elif message.content.startswith("!hb") or message.content.startswith("#Heardle"):
+        await process_message("hb", "🔊 Heardle", "#Heardle\s#[0-9]+\n\s🔊🟩+⬜️+", message)
 
 
 async def process_message(game_abbreviation, game_name, game_regex_string, message):
@@ -91,6 +93,10 @@ async def process_game_score(game_abbreviation, game_name, message):
 
     if game_abbreviation == "wlb":
         score = message.content.splitlines()[0].split(" ")[-2][0]
+    elif game_abbreviation == "hb":
+        # [0] is the top line and [1] is the blank second line, [2] is the score line
+        scoreLine = message.content.splitlines()[2]
+        score = scoreLine.count("🟩")
     else:
         score = message.content.splitlines()[0].split(" ")[-1][0]
 

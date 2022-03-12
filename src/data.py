@@ -24,6 +24,7 @@ class Client:
         self.taylordle_db = self.mongo.taylordle
         self.nerdle_db = self.mongo.nerdle
         self.lewdle_db = self.mongo.lewdle
+        self.heardle_db = self.mongo.heardle
 
     def get_db_by_game_abbreviation(self, game_abbreviation):
         if game_abbreviation == "wb":
@@ -38,6 +39,8 @@ class Client:
             return self.nerdle_db
         elif game_abbreviation == "lb":
             return self.lewdle_db
+        elif game_abbreviation == "hb":
+            return self.heardle_db
 
     def add_score(self, game_abbreviation: str, pid: int, game_number: str, score: int) -> bool:
         db = self.get_db_by_game_abbreviation(game_abbreviation)
