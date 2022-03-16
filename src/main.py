@@ -35,8 +35,8 @@ async def on_message(message: discord.Message):
         await process_message("tb", ":notes: Taylordle", "Taylordle [0-9]+ [1-6|X]/6", message)
     elif message.content.startswith("!nb") or message.content.startswith("nerdlegame"):
         await process_message("nb", "📐 Nerdle", "nerdlegame\s[0-9]+\s[1-6|X]/6", message)
-    elif message.content.startswith("!lb") or message.content.startswith("Daily Lewdle"):
-        await process_message("lb", ":pleading_face: Lewdle", "Daily Lewdle\s[0-9]+\s[1-6|X]/6", message)
+    elif message.content.startswith("!lb") or message.content.startswith("Lewdle 🍆💦"):
+        await process_message("lb", "🍆💦 Lewdle", "Lewdle 🍆💦\s[0-9]+\s[1-6|X]/6", message)
     elif message.content.startswith("!hb") or message.content.startswith("#Heardle"):
         await process_message("hb", "🔊 Heardle", "#Heardle\s#[0-9]+\n\s🔊🟩+⬜️+", message)
 
@@ -75,7 +75,7 @@ async def process_message(game_abbreviation, game_name, game_regex_string, messa
                       f"`!{game_abbreviation} games` to see server rankings by games played\n" \
                       f"`!{game_abbreviation} deletemydata` to remove all your scores from wordle-bot (warning: this is not reversible!)\n" \
                       f"I support multiple games now! Try the above commands with `!wb` (:book: Wordle), `!wlb` (:earth_americas: Worldle), " \
-                      f"`!sb` (:metro: Subwaydle), `!tb` (:notes: Taylordle), and `!nb` (📐 Nerdle)."
+                      f"`!sb` (:metro: Subwaydle), `!tb` (:notes: Taylordle), `!nb` (📐 Nerdle), `!hb` (🔊 Heardle), and `!lb` (🍆💦 Lewdle)."
         await message.channel.send(help_string)
 
     else:

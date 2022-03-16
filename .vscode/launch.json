@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: main.py",
+      "type": "python",
+      "request": "launch",
+      "program": "src/main.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: main.py --test",
+      "type": "python",
+      "request": "launch",
+      "program": "src/main.py",
+      "args": [
+        "--test"
+      ],
+      "console": "integratedTerminal"
+    }
+  ]
+}
