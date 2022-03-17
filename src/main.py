@@ -36,9 +36,9 @@ async def on_message(message: discord.Message):
     elif message.content.startswith("!nb") or message.content.startswith("nerdlegame"):
         await process_message("nb", "📐 Nerdle", "nerdlegame\s[0-9]+\s[1-6|X]/6", message)
     elif message.content.startswith("!lb") or message.content.startswith("Lewdle 🍆💦"):
-        await process_message("lb", "🍆💦 Lewdle", "Lewdle 🍆💦\s[0-9]+\s[1-6|X]/6", message)
+        await process_message("lb", "🍆💦 Lewdle", "Lewdle\s🍆💦\s[0-9]+\s[1-6|X]/6", message)
     elif message.content.startswith("!hb") or message.content.startswith("#Heardle"):
-        await process_message("hb", "🔊 Heardle", "#Heardle\s#[0-9]+\n\s🔊🟩+⬜️+", message)
+        await process_message("hb", "🔊 Heardle", "#Heardle\s*#[0-9]+", message)
 
 
 async def process_message(game_abbreviation, game_name, game_regex_string, message):
@@ -86,19 +86,28 @@ async def process_message(game_abbreviation, game_name, game_regex_string, messa
 
 async def process_game_score(game_abbreviation, game_name, message):
     # extract the Wordle number from message
-    game_number = message.content.splitlines()[0].split(" ")[1]
+    lines = message.content.splitlines()
 
-    # extract the score from message (-1 index means get the last item)
+    game_number = -1
     score = "X"
 
     if game_abbreviation == "wlb":
-        score = message.content.splitlines()[0].split(" ")[-2][0]
+        game_number = lines[0].split(" ")[1]
+        score = lines[0].split(" ")[-2][0]
     elif game_abbreviation == "hb":
+        game_number_token = lines[0].split(" ")[1]
+        # substring to skip the first char (the # character)
+        game_number = game_number_token[1:]
+
         # [0] is the top line and [1] is the blank second line, [2] is the score line
-        scoreLine = message.content.splitlines()[2]
-        score = scoreLine.count("🟩")
+        scoreLine = lines[2]
+        score = scoreLine.count("🟩") + scoreLine.count("⬛️")
+    elif game_abbreviation == "lb":
+        game_number = lines[0].split(" ")[2]
+        score = lines[0].split(" ")[-1][0]
     else:
-        score = message.content.splitlines()[0].split(" ")[-1][0]
+        game_number = lines[0].split(" ")[1]
+        score = lines[0].split(" ")[-1][0]
 
     if score == "X":
         score = "7"
